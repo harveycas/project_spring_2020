@@ -1,5 +1,5 @@
 import pytest
-from tetrad_analysis import dataframe_functions
+from tetrad_analysis import dataframe_functions as ddf
 import os
 import pandas as pd
 import numpy as np
@@ -8,7 +8,7 @@ from pandas import DataFrame
 
 
 #create sample excel document for performing tests
-SAMPLE_XLSX = Path(__file__)/ "data"/"python_test_list.xlsx"
+SAMPLE_XLSX = Path(__file__).parent/ "data"/"python_test_list.xlsx"
 SAMPLE_DF_TAIL = pd.DataFrame(
     data={
              "Plate": [1,1,1],
@@ -20,13 +20,13 @@ SAMPLE_DF_TAIL = pd.DataFrame(
              "URA": [0,1,0],
              }
      )
-     
+  COL = "URA"   
 
 #test read_excel_file() to see if it reads the input correctly
 def test_read_excel_file():
     
     expected_tail = SAMPLE_DF_TAIL.set_index("Plate") 
-    result = dataframe_functions.read_excel_file(SAMPLE_XLSX)  
+    result = ddf.read_excel_file(SAMPLE_XLSX)  
     
     assert result.tail(3) == expected_tail
     
@@ -38,20 +38,18 @@ def test_sort_and_filter_by_col():
    
     expected_df = SAMPLE_DF_TAIL.set_index("Plate")
 
-    def exp_sort_and_filter_by_col():
-    
 
-        expected_df_sorted = dataframe_functions_in.sort_values([col], ascending = False)
+    expected_df_sorted = expected_df.sort_values(["URA"], ascending = False)
     
-        #test for isolating positive values:
+    #test for isolating positive values:
     
-        expected_pos_vals = expected_df_sorted[expected_df_sorted[col]>0]
-        expected_df_filtered = pd.DataFrame(expected_pos_vals)
-        return expected_df_filtered
+    expected_pos_vals = expected_df_sorted[expected_df_sorted[COL]>0]
+    expected_df_filtered = pd.DataFrame(expected_pos_vals)
+
     
-    result = dataframe_functions.sort_and_filter_by_col(expected_df,expected_df[col])
+    result = ddf.sort_and_filter_by_col(expected_df,expected_df["URA"])
     
-    assert result == test_tetrad_analysis.exp_sort_and_filter_by_col(expected_df,expected_df[col])
+    assert result == expected_df_filtered
     
     
     
@@ -61,21 +59,19 @@ def test_sort_and_filter_by_col():
 #test combine_antibiotics() to see if it combines all positive values of col into one dictionary
 def test_combine_antibiotics():
     
-    expected_df = SAMPLE_DF_TAIL.set_index("Plate")
+    expected_df = ddf.read_excel_file(SAMPLE_XLSX)
+    markers = ['NAT','HYG','URA']
+  
     
-    def exp_test_combine_antibiotics():
-        
-        expected_df = dataframe_functions.read_excel_file(SAMPLE_XLSX)
+    expected_all_positive = {}
+    for marker in markers:
+        expected_marker = ddf.sort_and_filter_by_col(expected_df,marker)
+        expected_all_positive[marker + '_plus'] = expected_marker
+    return expected_all_positive
     
-        expected_all_positive = {}
-        for marker in markers:
-            expected_marker = dataframe_functions.sort_and_filter_by_col(marker)
-            expected_all_positive[marker + '_plus'] = expected_marker
-        return expected_all_positive
+    result = ddf.combine_antibiotics(expected_df,markers)
     
-    result = dataframe_functions.combine_antibiotics(expected_df,markers)
-    
-    assert result == dataframe_functions.exp_test_combine_antibiotics(expected_df,markers)
+    assert result == expected_all_positive
     
     
     
@@ -84,16 +80,18 @@ def test_combine_antibiotics():
 def test_write_marker_dict_to_disk():
    
 
-    def exp_test_write_marker_dict_to_disk():
+    file_out = "test.xlsx"
+    marker = "URA"
     
-        writer = pd.ExcelWriter(file_out, engine='xlsxwriter')
-        for sheet_name in markers.keys():
-            markers[sheet_name].to_excel(writer, sheet_name=sheet_name, index=False)
-        writer.save()
+    writer = pd.ExcelWriter(file_out, engine='xlsxwriter')
+    anti_bs = {"a": pd.DataFrame({"Plate": [1,1,1], "Tetrad":[12,12,12],})}
+    for sheet_name in anti_bs.keys():
+        anti_bs[sheet_name].to_excel(writer, sheet_name=sheet_name, index=False)
+    expected_result = writer.save
     
-    result = dataframe_functions.write_marker_dict_to_disk(marker=[marker,file_out])
+    result = ddf.write_marker_dict_to_disk(marker=[anti_bs,file_out])
     
-    assert result == dataframe_functions.exp_write_marker_dict_to_disk(marker,file_out)
+    assert result == expected_result
 
     
     
@@ -101,18 +99,17 @@ def test_write_marker_dict_to_disk():
 #tests test_antibiotic_analysis() to see if it sorts the data within the new excel document before the document is sent out
 def test_antibiotic_analysis():
     
-    expected_df = SAMPLE_DF_TAIL.set_index("Plate")
-    file_in = SAMPLE_XLSX
+    file_out = "test.xlsx"
+    markers = ['NAT','HYG','URA']
+    expected_df = ddf.read_excel_file(SAMPLE_XLSX)
     
-    def exp_test_antibiotic_analysis():
+    expected_df_tetrad = ddf.read_excel_file(SAMPLE_XLSX)
+    expected_output_dict = ddf.combine_antibiotics(expected_df_tetrad, markers)
+    expected_result = ddf.writer_marker_dict_to_disk(expected_output_dict,file_out)
     
-        expected_df_tetrad = read_excel_file(file_in)
-        expected_output_dict = combine_antibiotics(expected_df_tetrad, markers)
-        expected_result = writer_marker_dict_to_disk(expected_output_dict,file_out)
+    result = ddf.antibiotic_analysis(SAMPLE_XLSX,file_out="Antibiotic_markers.xlsx",markers=markers)
     
-    result = dataframe_functions.antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
-    
-    assert result == test_tetrad_analysis.exp_test_antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
+    assert result == expected_result
     
 
     
