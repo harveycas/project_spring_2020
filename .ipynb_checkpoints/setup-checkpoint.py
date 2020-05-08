@@ -1,3 +1,4 @@
+
 import setuptools
 
 
@@ -14,6 +15,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/harveycas/project_spring_2020",
     packages=setuptools.find_packages(),
+    install_requires =['xlsxwriter'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
