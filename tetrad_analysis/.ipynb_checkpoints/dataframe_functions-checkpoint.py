@@ -56,7 +56,7 @@ def combine_antibiotics(df_in,markers):
     #create one dataframe containing all of the positive markers
     all_positive = {}
     for marker in markers:
-        df_marker = sort_and_filter_by_col(marker)
+        df_marker = sort_and_filter_by_col(df_in,marker)
         all_positive[marker + '_plus'] = df_marker
     
     return all_positive
@@ -65,7 +65,7 @@ def combine_antibiotics(df_in,markers):
 
 
 
-def write_marker_dict_to_disk(marker,file_out):
+def write_marker_dict_to_disk(marker_dict,file_out):
     """
      Given a dict of dataframes, writes out an excel file in which each 
      dataframe occupies its own sheet
@@ -74,8 +74,8 @@ def write_marker_dict_to_disk(marker,file_out):
     #turn the dataframes stored in a dict into an excel document
     writer = pd.ExcelWriter(file_out, engine='xlsxwriter')
     
-    for sheet_name in markers.keys():
-        markers[sheet_name].to_excel(writer, sheet_name=sheet_name, index=False)
+    for sheet_name in markers_dict.keys():
+        markers_dict[sheet_name].to_excel(writer, sheet_name=sheet_name, index=False)
 
     writer.save()
     
