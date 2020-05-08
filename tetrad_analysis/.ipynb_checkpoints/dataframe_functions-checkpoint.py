@@ -1,3 +1,10 @@
+#CH 5.8.2020
+#written for python 3.7
+#this code is made in order to facilitate tetrad spore analysis.  It allows for users to quickly score spores for positive values of different antibiotics.  
+
+
+
+
 import pandas as pd
 import numpy as np
 from pandas import ExcelWriter
@@ -13,7 +20,7 @@ def read_excel_file(filepath):
     df = pd.read_excel(filepath)
     df_index = df.set_index('Plate')
     return df_index
-
+#make sure that the r'filepath is correct or else there will be an error 
 
 
 
@@ -86,6 +93,7 @@ def antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT
     output_dict = combine_antibiotics(df_tetrad,markers)
     write_marker_dict_to_disk(output_dict,file_out)
 
+#to check to see if the code fully ran, check to see if this new excel is created
    
 
 
