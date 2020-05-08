@@ -20,7 +20,7 @@ SAMPLE_DF_TAIL = pd.DataFrame(
              "URA": [0,1,0],
              }
      )
-  COL = "URA"   
+COL = "URA"   
 
 #test read_excel_file() to see if it reads the input correctly
 def test_read_excel_file():
