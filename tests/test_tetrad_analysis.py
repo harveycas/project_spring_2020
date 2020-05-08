@@ -7,7 +7,7 @@ from pathlib import Path
 from pandas import DataFrame
 
 
-
+#create sample excel document for performing tests
 SAMPLE_XLSX = Path(__file__)/ "data"/"python_test_list.xlsx"
 SAMPLE_DF_TAIL = pd.DataFrame(
     data={
@@ -22,7 +22,7 @@ SAMPLE_DF_TAIL = pd.DataFrame(
      )
      
 
-
+#test read_excel_file() to see if it reads the input correctly
 def test_read_excel_file():
     
     expected_tail = SAMPLE_DF_TAIL.set_index("Plate") 
@@ -33,7 +33,7 @@ def test_read_excel_file():
 
     
     
-
+#test sort_and_filter_by_col() to make sure it sorts input data by correct col and positive values 
 def test_sort_and_filter_by_col():
    
     expected_df = SAMPLE_DF_TAIL.set_index("Plate")
@@ -58,7 +58,7 @@ def test_sort_and_filter_by_col():
     
                   
 
-
+#test combine_antibiotics() to see if it combines all positive values of col into one dictionary
 def test_combine_antibiotics():
     
     expected_df = SAMPLE_DF_TAIL.set_index("Plate")
@@ -80,7 +80,7 @@ def test_combine_antibiotics():
     
     
     
-
+#tests write_marker_dict_to_disk() to see if it creates a new excel doucment for the newly created library
 def test_write_marker_dict_to_disk():
    
 
@@ -98,7 +98,7 @@ def test_write_marker_dict_to_disk():
     
     
     
-
+#tests test_antibiotic_analysis() to see if it sorts the data within the new excel document before the document is sent out
 def test_antibiotic_analysis():
     
     expected_df = SAMPLE_DF_TAIL.set_index("Plate")
@@ -115,6 +115,8 @@ def test_antibiotic_analysis():
     assert result == test_tetrad_analysis.exp_test_antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
     
 
+    
+#for testing
 if __name__=='__main__':
     test_read_excel_file()
     test_sort_and_filter_by_col()
