@@ -1,8 +1,11 @@
 import pytest
 from tetrad_analysis import dataframe_functions
+import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from pandas import DataFrame
+
 
 
 SAMPLE_XLSX = Path(__file__)/ "data"/"python_test_list.xlsx"
@@ -17,8 +20,9 @@ SAMPLE_DF_TAIL = pd.DataFrame(
              "URA": [0,1,0],
              }
      )
-    
-    
+     
+
+
 def test_read_excel_file():
     
     expected_tail = SAMPLE_DF_TAIL.set_index("Plate") 
@@ -32,7 +36,7 @@ def test_read_excel_file():
 
 def test_sort_and_filter_by_col():
    
-    expected_df = dataframe_functions.read_excel_file(SAMPLE_XLSX)
+    expected_df = SAMPLE_DF_TAIL.set_index("Plate")
 
     def exp_sort_and_filter_by_col():
     
@@ -45,10 +49,9 @@ def test_sort_and_filter_by_col():
         expected_df_filtered = pd.DataFrame(expected_pos_vals)
         return expected_df_filtered
     
-    
     result = dataframe_functions.sort_and_filter_by_col(expected_df,expected_df[col])
     
-    assert result == dataframe_functions.exp_sort_and_filter_by_col(expected_df,expected_df[col])
+    assert result == test_tetrad_analysis.exp_sort_and_filter_by_col(expected_df,expected_df[col])
     
     
     
@@ -58,7 +61,7 @@ def test_sort_and_filter_by_col():
 
 def test_combine_antibiotics():
     
-    expected_df = dataframe_functions.read_excel_file(SAMPLE_XLSX)
+    expected_df = SAMPLE_DF_TAIL.set_index("Plate")
     
     def exp_test_combine_antibiotics():
         
@@ -70,7 +73,7 @@ def test_combine_antibiotics():
             expected_all_positive[marker + '_plus'] = expected_marker
         return expected_all_positive
     
-    result = dataframe_functions.test_combine_antibiotics(expected_df,markers)
+    result = dataframe_functions.combine_antibiotics(expected_df,markers)
     
     assert result == dataframe_functions.exp_test_combine_antibiotics(expected_df,markers)
     
@@ -79,7 +82,8 @@ def test_combine_antibiotics():
     
 
 def test_write_marker_dict_to_disk():
-    
+   
+
     def exp_test_write_marker_dict_to_disk():
     
         writer = pd.ExcelWriter(file_out, engine='xlsxwriter')
@@ -87,7 +91,7 @@ def test_write_marker_dict_to_disk():
             markers[sheet_name].to_excel(writer, sheet_name=sheet_name, index=False)
         writer.save()
     
-    result = dataframe_functions.write_marker_dict_to_disk(marker,file_out)
+    result = dataframe_functions.write_marker_dict_to_disk(marker=[marker,file_out])
     
     assert result == dataframe_functions.exp_write_marker_dict_to_disk(marker,file_out)
 
@@ -97,7 +101,8 @@ def test_write_marker_dict_to_disk():
 
 def test_antibiotic_analysis():
     
-    expected_df = dataframe_functions.read_excel_file(SAMPLE_XLSX)
+    expected_df = SAMPLE_DF_TAIL.set_index("Plate")
+    file_in = SAMPLE_XLSX
     
     def exp_test_antibiotic_analysis():
     
@@ -105,9 +110,9 @@ def test_antibiotic_analysis():
         expected_output_dict = combine_antibiotics(expected_df_tetrad, markers)
         expected_result = writer_marker_dict_to_disk(expected_output_dict,file_out)
     
-    result = dataFrame_functions.test_antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
+    result = dataframe_functions.antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
     
-    assert result == dataframe_functions.exp_test_antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
+    assert result == test_tetrad_analysis.exp_test_antibiotic_analysis(file_in,file_out="Antibiotic_markers.xlsx",markers=['NAT','HYG','URA'])
     
 
 if __name__=='__main__':
